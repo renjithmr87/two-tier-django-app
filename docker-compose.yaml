@@ -3,17 +3,21 @@ services:
   webapp:
     build:
       context: .
-      dockerfile: Dockerfile  # Specify the path to your Django app Dockerfile
+      dockerfile: Dockerfile  
     ports:
-      - 8000:8000  # Adjust the port as needed
+      - 8000:8000  
     depends_on:
-      - postgres-db
+      - postgres-service
     environment:
-      - DATABASE_URL=postgres://myuser:mypassword@postgres-db:5432/myproject  # Use the connection URL for Django
+      - DB_NAME=myproject
+      - DB_USER=myuser
+      - DB_PASSWORD=mypassword
+      - DB_HOST=postgres-service
+      - DB_PORT=5432
     command: bash -c "sleep 10 && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
 
 
-  postgres-db:
+  postgres-service:
     image: postgres:latest
     ports:
       - 5432:5432
@@ -21,6 +25,4 @@ services:
       - POSTGRES_USER=myuser
       - POSTGRES_PASSWORD=mypassword
       - POSTGRES_DB=myproject
-
-  
 
