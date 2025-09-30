@@ -1,28 +1,38 @@
-version: '3'
 services:
   webapp:
     build:
       context: .
-      dockerfile: Dockerfile  
+      dockerfile: Dockerfile
     ports:
-      - 8000:8000  
+      - "8001:8000"  # Changed port
     depends_on:
       - postgres-service
+    networks:
+      - two-tier-network
     environment:
-      - DB_NAME=myproject
-      - DB_USER=myuser
-      - DB_PASSWORD=mypassword
-      - DB_HOST=postgres-service
-      - DB_PORT=5432
+      DB_NAME: myproject
+      DB_USER: myuser
+      DB_PASSWORD: mypassword
+      DB_HOST: postgres-service
+      DB_PORT: 5432
     command: bash -c "sleep 10 && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
-
 
   postgres-service:
     image: postgres:latest
     ports:
-      - 5432:5432
+      - "5432:5432"
+    networks:
+      - two-tier-network
     environment:
-      - POSTGRES_USER=myuser
-      - POSTGRES_PASSWORD=mypassword
-      - POSTGRES_DB=myproject
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: myproject
+    volumes:
+      - app-vol:/var/lib/postgresql/data
 
+volumes:
+  app-vol:
+
+networks:
+  two-tier-network:
+    driver: bridge
